@@ -1,1 +1,1 @@
-# AA-Creative-Project
+# Algorithmic Aesthetics creative project
