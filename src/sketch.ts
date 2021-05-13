@@ -63,7 +63,7 @@ function make_request() {
         const { image } = outputs
         img = createImg(image)
         img.hide()
-        z[1] += 0.1 //0 rend asiatique / 1 rend lumineux et joyeux
+        z[1] += 0.1 // 0 rend asiatique ; 1 rend lumineux et joyeux
         //@ts-ignore
         p5.prototype.downloadFile(image, frameNB.toString(), "png")
         frameNB++
