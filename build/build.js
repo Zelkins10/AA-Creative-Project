@@ -8,7 +8,6 @@ var mdl = new rw.HostedModel({
 });
 var mdl2 = new rw.HostedModel({
     url: "https://landscapes-42d075ff.hosted-models.runwayml.cloud/v1/",
-    token: "c9QIOuRO9ngJbQzIdAW9SQ==",
 });
 var img;
 var z = [];
@@ -70,7 +69,7 @@ function make_request() {
         var image = outputs.image;
         img = createImg(image);
         img.hide();
-        if (jauneMoy > bleuMoy) {
+        if (jauneMoy < bleuMoy) {
             z[0] += 10;
             z[1] -= 10;
         }
