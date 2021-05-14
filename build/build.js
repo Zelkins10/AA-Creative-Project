@@ -16,8 +16,7 @@ var img2;
 var z2 = [];
 var frameNB2 = 0;
 var NB_FRAMES_TO_EXPORT = 12;
-var jauneMoy = 0;
-var bleuMoy = 0;
+var luminositeMoy = 0;
 function draw() {
     if (img) {
         image(img, 0, 0, width, height);
@@ -47,8 +46,7 @@ function make_request2() {
         for (var x = 0; x < width; x = x + 1) {
             for (var y = 0; y < height; y = y + 1) {
                 var couleur = get(x, y);
-                jauneMoy = jauneMoy + red(couleur) + green(couleur);
-                bleuMoy = bleuMoy + 2 * blue(couleur);
+                luminositeMoy = luminositeMoy + ((red(couleur) + green(couleur) + blue(couleur)) / 3);
             }
         }
         img2.hide();
@@ -68,17 +66,16 @@ function make_request() {
     mdl.query(inputs).then(function (outputs) {
         var image = outputs.image;
         img = createImg(image);
-        img.hide();
-        if (jauneMoy < bleuMoy) {
-            z[0] += 10;
+        luminositeMoy = luminositeMoy / (width * height);
+        console.log(luminositeMoy);
+        if (luminositeMoy < 128) {
             z[1] -= 10;
         }
         else {
             z[1] += 10;
-            z[0] -= 10;
         }
-        jauneMoy = 0;
-        bleuMoy = 0;
+        luminositeMoy = 0;
+        img.hide();
         p5.prototype.downloadFile(image, frameNB.toString(), "png");
         frameNB++;
         if (frameNB < NB_FRAMES_TO_EXPORT) {

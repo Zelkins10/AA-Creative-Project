@@ -25,8 +25,7 @@ let img2: p5.Element
 const z2 = []
 let frameNB2 = 0
 const NB_FRAMES_TO_EXPORT = 12
-let jauneMoy = 0
-let bleuMoy = 0
+let luminositeMoy = 0
 // -------------------
 //       Drawing
 // -------------------
@@ -68,8 +67,7 @@ function make_request2() {
         for (var x = 0; x < width; x = x + 1) {
             for (var y = 0; y < height; y = y + 1) {
                 var couleur = get(x, y)
-                jauneMoy = jauneMoy+red(couleur)+green(couleur)
-                bleuMoy = bleuMoy+2*blue(couleur)
+                luminositeMoy = luminositeMoy+((red(couleur)+green(couleur)+blue(couleur))/3)
             }
         }
         img2.hide()
@@ -90,17 +88,16 @@ function make_request() {
     mdl.query(inputs).then(outputs => {
         const { image } = outputs
         img = createImg(image)
-        img.hide()
-        if (jauneMoy<bleuMoy) {
-            z[0] += 10 // 0 rend asiatique / 1 rend lumineux et joyeux
+        luminositeMoy = luminositeMoy / (width*height)
+        console.log(luminositeMoy)
+        if (luminositeMoy<128) {
             z[1] -= 10 // 0 rend asiatique / 1 rend lumineux et joyeux
         }
         else {
             z[1] += 10 // 0 rend asiatique / 1 rend lumineux et joyeux
-            z[0] -= 10 // 0 rend asiatique / 1 rend lumineux et joyeux
         }
-        jauneMoy = 0
-        bleuMoy = 0
+        luminositeMoy = 0
+        img.hide()
         //@ts-ignore
         p5.prototype.downloadFile(image, frameNB.toString(), "png")
         frameNB++
