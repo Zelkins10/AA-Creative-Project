@@ -3,36 +3,87 @@ var params = {
     Download_Image: function () { return save(); },
 };
 gui.add(params, "Download_Image");
-var ai = new rw.HostedModel({
-    url: "https://landscapes-ee51eac1.hosted-models.runwayml.cloud/v1/",
-    token: "CvE3T2tx1UeAlwDzGWRzww==",
+var mdl = new rw.HostedModel({
+    url: "https://stylegan2-d754f125.hosted-models.runwayml.cloud/v1/",
+});
+var mdl2 = new rw.HostedModel({
+    url: "https://landscapes-42d075ff.hosted-models.runwayml.cloud/v1/",
+    token: "c9QIOuRO9ngJbQzIdAW9SQ==",
 });
 var img;
+var z = [];
+var frameNB = 0;
+var img2;
+var z2 = [];
+var frameNB2 = 0;
+var NB_FRAMES_TO_EXPORT = 12;
+var jauneMoy = 0;
+var bleuMoy = 0;
 function draw() {
     if (img) {
         image(img, 0, 0, width, height);
     }
+    if (img2) {
+        image(img2, 0, 0, width, height);
+    }
 }
 function setup() {
     p6_CreateCanvas();
+    for (var i = 0; i < 512; i++) {
+        z[i] = random(-0.5, 0.5);
+    }
+    for (var i = 0; i < 512; i++) {
+        z2[i] = random(-0.5, 0.5);
+    }
+    make_request2();
 }
-var z = [];
-var frameNB = 0;
-var NB_FRAMES_TO_EXPORT = 120;
+function make_request2() {
+    var inputs2 = {
+        "z": z2,
+        "truncation": 0.8,
+    };
+    mdl2.query(inputs2).then(function (outputs) {
+        var image = outputs.image;
+        img2 = createImg(image);
+        for (var x = 0; x < width; x = x + 1) {
+            for (var y = 0; y < height; y = y + 1) {
+                var couleur = get(x, y);
+                jauneMoy = jauneMoy + red(couleur) + green(couleur);
+                bleuMoy = bleuMoy + 2 * blue(couleur);
+            }
+        }
+        img2.hide();
+        z2[0] += 1;
+        p5.prototype.downloadFile(image, frameNB2.toString(), "png");
+        frameNB2++;
+        if (frameNB2 < NB_FRAMES_TO_EXPORT) {
+            make_request();
+        }
+    });
+}
 function make_request() {
     var inputs = {
         "z": z,
         "truncation": 0.8,
     };
-    ai.query(inputs).then(function (outputs) {
+    mdl.query(inputs).then(function (outputs) {
         var image = outputs.image;
         img = createImg(image);
         img.hide();
-        z[0] += 0.1;
+        if (jauneMoy > bleuMoy) {
+            z[0] += 10;
+            z[1] -= 10;
+        }
+        else {
+            z[1] += 10;
+            z[0] -= 10;
+        }
+        jauneMoy = 0;
+        bleuMoy = 0;
         p5.prototype.downloadFile(image, frameNB.toString(), "png");
         frameNB++;
         if (frameNB < NB_FRAMES_TO_EXPORT) {
-            make_request();
+            make_request2();
         }
     });
 }
