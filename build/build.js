@@ -1,12 +1,14 @@
 var gui = new dat.GUI();
 var params = {
+    randomSeed: 2,
     Download_Image: function () { return save(); },
 };
+gui.add(params, "randomSeed", 1, 100, 1);
 gui.add(params, "Download_Image");
-var NB_FRAMES_TO_EXPORT = 12;
+var NB_FRAMES_TO_EXPORT = 240;
 var luminositeMoyP = 0;
 var mdlV = new rw.HostedModel({
-    url: "https://stylegan2-79c5c254.hosted-models.runwayml.cloud/v1/",
+    url: "https://stylegan2-c5d338dc.hosted-models.runwayml.cloud/v1/",
 });
 var imgV;
 var zV = [];
@@ -18,6 +20,7 @@ var imgP;
 var zP = [];
 var frameNbP = 0;
 function draw() {
+    randomSeed(params.randomSeed);
     if (imgV) {
         image(imgV, 0, 0, width, height);
     }
@@ -50,8 +53,15 @@ function make_request_P() {
             }
         }
         imgP.hide();
-        zP[0] += 1;
-        p5.prototype.downloadFile(image, frameNbP.toString(), "png");
+        for (var i = 0; i < 512; i++) {
+            if (random() < 0.5) {
+                zP[i] += 0.5;
+            }
+            else {
+                zP[i] -= 0.5;
+            }
+        }
+        p5.prototype.downloadFile(image, 'p'.concat(frameNbP.toString()), "png");
         frameNbP++;
         if (frameNbP < NB_FRAMES_TO_EXPORT) {
             make_request_V();
@@ -68,12 +78,7 @@ function make_request_V() {
         imgV = createImg(image);
         luminositeMoyP = luminositeMoyP / (width * height);
         console.log(luminositeMoyP);
-        if (luminositeMoyP < 128) {
-            zV[1] -= 10;
-        }
-        else {
-            zV[1] += 10;
-        }
+        zV[4] += 0.1;
         luminositeMoyP = 0;
         imgV.hide();
         p5.prototype.downloadFile(image, frameNbV.toString(), "png");

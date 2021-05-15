@@ -4,11 +4,13 @@
 
 const gui = new dat.GUI()
 const params = {
+    randomSeed: 2,
     Download_Image: () => save(),
 }
+gui.add(params, "randomSeed", 1, 100, 1)
 gui.add(params, "Download_Image")
 
-const NB_FRAMES_TO_EXPORT = 12
+const NB_FRAMES_TO_EXPORT = 240
 
 let luminositeMoyP = 0
 
@@ -16,7 +18,8 @@ let luminositeMoyP = 0
 //@ts-ignore ( = ignorer la syntaxe de la ligne suivante)
 const mdlV = new rw.HostedModel({
     //url: "https://stylegan2-d754f125.hosted-models.runwayml.cloud/v1/", // Lucas
-    url: "https://stylegan2-79c5c254.hosted-models.runwayml.cloud/v1/", // Maxime
+    //url: "https://stylegan2-79c5c254.hosted-models.runwayml.cloud/v1/", // Maxime
+    url: "https://stylegan2-c5d338dc.hosted-models.runwayml.cloud/v1/", // Maxime (john3)
     
 });
 let imgV: p5.Element
@@ -39,6 +42,9 @@ let frameNbP = 0
 // -------------------
 
 function draw(){
+
+    randomSeed(params.randomSeed)
+
     if(imgV){
         image(imgV, 0, 0, width, height);
     }
@@ -84,9 +90,19 @@ function make_request_P(){
         }
 
         imgP.hide()
-        zP[0] += 1 // 0 fait coucher le soleil
+        //zP[1] += 1 // 0 fait coucher le soleil ; 1 marron nuageux montagneux sombre
+
+        for(let i = 0; i < 512; i++){
+            if(random() < 0.5){ // 1 chance sur 2 d'augmenter ou de diminuer la composante de zP
+                zP[i]+=0.5;
+            }
+            else{
+                zP[i]-=0.5;
+            }
+        }
+
         //@ts-ignore
-        p5.prototype.downloadFile(image, frameNbP.toString(), "png")
+        p5.prototype.downloadFile(image, 'p'.concat(frameNbP.toString()), "png")
         frameNbP++
 
         if(frameNbP < NB_FRAMES_TO_EXPORT){ // Tant que la vidéo n'est pas finie, on appelle la requête des visages
@@ -106,13 +122,21 @@ function make_request_V(){
         imgV = createImg(image)
         luminositeMoyP = luminositeMoyP/(width*height)
         console.log(luminositeMoyP)
-
-        if(luminositeMoyP < 128){ // Luminosité de paysage faible => visage triste
-            zV[1] -= 10 // 0 rend asiatique ; 1 rend lumineux et joyeux
+        
+        /*
+        if(luminositeMoyP < 150){ // Luminosité de paysage faible => visage triste
+            zV[1] -= 0.5
         }
         else{ // Luminosité de paysage élevée => visage joyeux
-            zV[1] += 10 // 0 rend asiatique ; 1 rend lumineux et joyeux
+            zV[1] += 0.5 // 0 rend asiatique ; 1 lumineux/joyeux ; 2 malgache ; 3 allemand/blond aux yeux bleus ; 4 vieux ; 5 occidental et non barbu et qq autres paramètres difficiles à déterminer ; 7 : fille blonde yeux bleus et couvre-chef ; 100 : bébé blanc triste
         }
+        */
+
+        //zV[1] = map(luminositeMoyP, 0, 255, -0.5, 0.5)
+
+        zV[4]+=0.1; // Au fil de la vidéo, le visage vieillit légèrement
+
+        // zV[100]+=1 // TESTS
 
         luminositeMoyP = 0
         imgV.hide()
