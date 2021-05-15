@@ -4,82 +4,82 @@ var params = {
 };
 gui.add(params, "Download_Image");
 var NB_FRAMES_TO_EXPORT = 12;
-var luminositeMoy = 0;
-var mdl = new rw.HostedModel({
-    url: "https://stylegan2-d754f125.hosted-models.runwayml.cloud/v1/",
+var luminositeMoyP = 0;
+var mdlV = new rw.HostedModel({
+    url: "https://stylegan2-79c5c254.hosted-models.runwayml.cloud/v1/",
 });
-var img;
-var z = [];
-var frameNB = 0;
-var mdl2 = new rw.HostedModel({
-    url: "https://landscapes-42d075ff.hosted-models.runwayml.cloud/v1/",
+var imgV;
+var zV = [];
+var frameNbV = 0;
+var mdlP = new rw.HostedModel({
+    url: "https://landscapes-21eee1a8.hosted-models.runwayml.cloud/v1/",
 });
-var img2;
-var z2 = [];
-var frameNB2 = 0;
+var imgP;
+var zP = [];
+var frameNbP = 0;
 function draw() {
-    if (img) {
-        image(img, 0, 0, width, height);
+    if (imgV) {
+        image(imgV, 0, 0, width, height);
     }
-    if (img2) {
-        image(img2, 0, 0, width, height);
+    if (imgP) {
+        image(imgP, 0, 0, width, height);
     }
 }
 function setup() {
     p6_CreateCanvas();
     for (var i = 0; i < 512; i++) {
-        z[i] = random(-0.5, 0.5);
+        zV[i] = random(-0.5, 0.5);
     }
     for (var i = 0; i < 512; i++) {
-        z2[i] = random(-0.5, 0.5);
+        zP[i] = random(-0.5, 0.5);
     }
-    make_request2();
+    make_request_P();
 }
-function make_request2() {
-    var inputs2 = {
-        "z": z2,
+function make_request_P() {
+    var inputsP = {
+        "z": zP,
         "truncation": 0.8,
     };
-    mdl2.query(inputs2).then(function (outputs) {
+    mdlP.query(inputsP).then(function (outputs) {
         var image = outputs.image;
-        img2 = createImg(image);
-        for (var x = 0; x < width; x = x + 1) {
-            for (var y = 0; y < height; y = y + 1) {
+        imgP = createImg(image);
+        for (var x = 0; x < width; x++) {
+            for (var y = 0; y < height; y++) {
                 var couleur = get(x, y);
-                luminositeMoy = luminositeMoy + ((red(couleur) + green(couleur) + blue(couleur)) / 3);
+                luminositeMoyP = luminositeMoyP + ((red(couleur) + green(couleur) + blue(couleur)) / 3);
             }
         }
-        img2.hide();
-        z2[0] += 1;
-        p5.prototype.downloadFile(image, frameNB2.toString(), "png");
-        frameNB2++;
-        if (frameNB2 < NB_FRAMES_TO_EXPORT) {
-            make_request();
+        imgP.hide();
+        zP[0] += 1;
+        p5.prototype.downloadFile(image, frameNbP.toString(), "png");
+        frameNbP++;
+        if (frameNbP < NB_FRAMES_TO_EXPORT) {
+            make_request_V();
         }
     });
 }
-function make_request() {
-    var inputs = {
-        "z": z,
+function make_request_V() {
+    var inputsV = {
+        "z": zV,
         "truncation": 0.8,
     };
-    mdl.query(inputs).then(function (outputs) {
+    mdlV.query(inputsV).then(function (outputs) {
         var image = outputs.image;
-        img = createImg(image);
-        luminositeMoy = luminositeMoy / (width * height);
-        console.log(luminositeMoy);
-        if (luminositeMoy < 128) {
-            z[1] -= 10;
+        imgV = createImg(image);
+        luminositeMoyP = luminositeMoyP / (width * height);
+        console.log(luminositeMoyP);
+        if (luminositeMoyP < 128) {
+            zV[1] -= 10;
         }
         else {
-            z[1] += 10;
+            zV[1] += 10;
         }
-        luminositeMoy = 0;
-        img.hide();
-        p5.prototype.downloadFile(image, frameNB.toString(), "png");
-        frameNB++;
-        if (frameNB < NB_FRAMES_TO_EXPORT) {
-            make_request2();
+        luminositeMoyP = 0;
+        imgV.hide();
+        p5.prototype.downloadFile(image, frameNbV.toString(), "png");
+        frameNbV++;
+        if (frameNbV < NB_FRAMES_TO_EXPORT) {
+            make_request_P();
         }
     });
 }
