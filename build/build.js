@@ -3,20 +3,20 @@ var params = {
     Download_Image: function () { return save(); },
 };
 gui.add(params, "Download_Image");
+var NB_FRAMES_TO_EXPORT = 12;
+var luminositeMoy = 0;
 var mdl = new rw.HostedModel({
     url: "https://stylegan2-d754f125.hosted-models.runwayml.cloud/v1/",
-});
-var mdl2 = new rw.HostedModel({
-    url: "https://landscapes-42d075ff.hosted-models.runwayml.cloud/v1/",
 });
 var img;
 var z = [];
 var frameNB = 0;
+var mdl2 = new rw.HostedModel({
+    url: "https://landscapes-42d075ff.hosted-models.runwayml.cloud/v1/",
+});
 var img2;
 var z2 = [];
 var frameNB2 = 0;
-var NB_FRAMES_TO_EXPORT = 12;
-var luminositeMoy = 0;
 function draw() {
     if (img) {
         image(img, 0, 0, width, height);
