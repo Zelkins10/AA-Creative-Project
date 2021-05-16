@@ -8,19 +8,19 @@ gui.add(params, "Download_Image");
 var NB_FRAMES_TO_EXPORT = 20;
 var luminositeMoyP = 0;
 var mdlV = new rw.HostedModel({
-    url: "https://stylegan2-1f8986af.hosted-models.runwayml.cloud/v1/",
+    url: "https://stylegan2-41afb750.hosted-models.runwayml.cloud/v1/",
 });
 var imgV;
 var zV = [];
 var frameNbV = 0;
 var mdlP = new rw.HostedModel({
-    url: "https://landscapes-26fdedfa.hosted-models.runwayml.cloud/v1/",
+    url: "https://landscapes-c8c0cdf9.hosted-models.runwayml.cloud/v1/",
 });
 var imgP;
 var zP = [];
 var frameNbP = 0;
+var compteur = 0;
 function draw() {
-    randomSeed(params.randomSeed);
     if (imgV) {
         image(imgV, 0, 0, width, height);
     }
@@ -41,7 +41,7 @@ function setup() {
 function make_request_P() {
     var inputsP = {
         "z": zP,
-        "truncation": 0.8,
+        "truncation": 0.5,
     };
     mdlP.query(inputsP).then(function (outputs) {
         var image = outputs.image;
@@ -53,16 +53,14 @@ function make_request_P() {
             }
         }
         imgP.hide();
-        for (var i = 0; i < 512; i++) {
-            if (random() < 0.5) {
-                zP[i] += 2;
-            }
-            else {
-                zP[i] -= 2;
-            }
+        zP[0] += 0.002;
+        if (compteur > 0) {
+            zP[compteur - 1] -= 5;
         }
+        zP[compteur] += 5;
         p5.prototype.downloadFile(image, 'p'.concat(frameNbP.toString()), "png");
         frameNbP++;
+        compteur++;
         if (frameNbP < NB_FRAMES_TO_EXPORT) {
             make_request_V();
         }
@@ -78,8 +76,8 @@ function make_request_V() {
         imgV = createImg(image);
         luminositeMoyP = luminositeMoyP / (width * height);
         console.log(luminositeMoyP);
-        zV[1] = map(luminositeMoyP, 90, 160, -10, 10);
-        luminositeMoyP = 0;
+        zV[1] = map(luminositeMoyP, 80, 190, 0, 10);
+        zV[31] = map(1 / luminositeMoyP, 1 / 190, 1 / 80, 0, 10);
         imgV.hide();
         p5.prototype.downloadFile(image, frameNbV.toString(), "png");
         frameNbV++;
