@@ -4,13 +4,13 @@
 
 const gui = new dat.GUI()
 const params = {
-    randomSeed: 2,
+    randomSeed: 4,
     Download_Image: () => save(),
 }
 gui.add(params, "randomSeed", 1, 100, 1)
 gui.add(params, "Download_Image")
 
-const NB_FRAMES_TO_EXPORT = 240
+const NB_FRAMES_TO_EXPORT = 20
 
 let luminositeMoyP = 0
 
@@ -19,7 +19,7 @@ let luminositeMoyP = 0
 const mdlV = new rw.HostedModel({
     //url: "https://stylegan2-d754f125.hosted-models.runwayml.cloud/v1/", // Lucas
     //url: "https://stylegan2-79c5c254.hosted-models.runwayml.cloud/v1/", // Maxime
-    url: "https://stylegan2-c5d338dc.hosted-models.runwayml.cloud/v1/", // Maxime (john3)
+    url: "https://stylegan2-1f8986af.hosted-models.runwayml.cloud/v1/", // Maxime (john15)
     
 });
 let imgV: p5.Element
@@ -30,7 +30,8 @@ let frameNbV = 0
 //@ts-ignore
 const mdlP = new rw.HostedModel({
     //url: "https://landscapes-42d075ff.hosted-models.runwayml.cloud/v1/", // Lucas
-    url: "https://landscapes-21eee1a8.hosted-models.runwayml.cloud/v1/", // Maxime
+    //url: "https://landscapes-21eee1a8.hosted-models.runwayml.cloud/v1/", // Maxime
+    url: "https://landscapes-26fdedfa.hosted-models.runwayml.cloud/v1/", // Maxime (john14)
 });
 let imgP: p5.Element
 const zP = []
@@ -94,10 +95,10 @@ function make_request_P(){
 
         for(let i = 0; i < 512; i++){
             if(random() < 0.5){ // 1 chance sur 2 d'augmenter ou de diminuer la composante de zP
-                zP[i]+=0.5;
+                zP[i]+=2;
             }
             else{
-                zP[i]-=0.5;
+                zP[i]-=2;
             }
         }
 
@@ -132,11 +133,15 @@ function make_request_V(){
         }
         */
 
-        //zV[1] = map(luminositeMoyP, 0, 255, -0.5, 0.5)
+        // JOIE
+        zV[1] = map(luminositeMoyP, 90, 160, -10, 10) // mapper la joie du perso depuis luminositeMoyP vers un intervalle raisonnable
 
-        zV[4]+=0.1; // Au fil de la vidéo, le visage vieillit légèrement
+        // VIEILLESSE
+        //zV[4]+=0.3; // Au fil de la vidéo, le visage vieillit légèrement
+        // 0.3/6 pr 240 frames
 
-        // zV[100]+=1 // TESTS
+        // TESTS
+        //zV[1]-=1
 
         luminositeMoyP = 0
         imgV.hide()

@@ -1,20 +1,20 @@
 var gui = new dat.GUI();
 var params = {
-    randomSeed: 2,
+    randomSeed: 4,
     Download_Image: function () { return save(); },
 };
 gui.add(params, "randomSeed", 1, 100, 1);
 gui.add(params, "Download_Image");
-var NB_FRAMES_TO_EXPORT = 240;
+var NB_FRAMES_TO_EXPORT = 20;
 var luminositeMoyP = 0;
 var mdlV = new rw.HostedModel({
-    url: "https://stylegan2-c5d338dc.hosted-models.runwayml.cloud/v1/",
+    url: "https://stylegan2-1f8986af.hosted-models.runwayml.cloud/v1/",
 });
 var imgV;
 var zV = [];
 var frameNbV = 0;
 var mdlP = new rw.HostedModel({
-    url: "https://landscapes-21eee1a8.hosted-models.runwayml.cloud/v1/",
+    url: "https://landscapes-26fdedfa.hosted-models.runwayml.cloud/v1/",
 });
 var imgP;
 var zP = [];
@@ -55,10 +55,10 @@ function make_request_P() {
         imgP.hide();
         for (var i = 0; i < 512; i++) {
             if (random() < 0.5) {
-                zP[i] += 0.5;
+                zP[i] += 2;
             }
             else {
-                zP[i] -= 0.5;
+                zP[i] -= 2;
             }
         }
         p5.prototype.downloadFile(image, 'p'.concat(frameNbP.toString()), "png");
@@ -78,7 +78,7 @@ function make_request_V() {
         imgV = createImg(image);
         luminositeMoyP = luminositeMoyP / (width * height);
         console.log(luminositeMoyP);
-        zV[4] += 0.1;
+        zV[1] = map(luminositeMoyP, 90, 160, -10, 10);
         luminositeMoyP = 0;
         imgV.hide();
         p5.prototype.downloadFile(image, frameNbV.toString(), "png");
