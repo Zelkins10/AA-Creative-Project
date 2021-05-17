@@ -10,7 +10,7 @@ const params = {
 gui.add(params, "randomSeed", 1, 100, 1)
 gui.add(params, "Download_Image")
 
-const NB_FRAMES_TO_EXPORT = 20
+const NB_FRAMES_TO_EXPORT = 240/3
 
 let luminositeMoyP = 0
 
@@ -19,7 +19,7 @@ let luminositeMoyP = 0
 const mdlV = new rw.HostedModel({
     //url: "https://stylegan2-d754f125.hosted-models.runwayml.cloud/v1/", // Lucas
     //url: "https://stylegan2-79c5c254.hosted-models.runwayml.cloud/v1/", // Maxime
-    url: "https://stylegan2-41afb750.hosted-models.runwayml.cloud/v1/", // Maxime (john17)
+    url: "https://stylegan2-4c8e16cc.hosted-models.runwayml.cloud/v1/", // Maxime (john21)
     
 });
 let imgV: p5.Element
@@ -31,7 +31,7 @@ let frameNbV = 0
 const mdlP = new rw.HostedModel({
     //url: "https://landscapes-42d075ff.hosted-models.runwayml.cloud/v1/", // Lucas
     //url: "https://landscapes-21eee1a8.hosted-models.runwayml.cloud/v1/", // Maxime
-    url: "https://landscapes-c8c0cdf9.hosted-models.runwayml.cloud/v1/", // Maxime (john16)
+    url: "https://landscapes-b3d4b050.hosted-models.runwayml.cloud/v1/", // Maxime (john20)
 });
 let imgP: p5.Element
 let zP = [] // const ?
@@ -45,7 +45,7 @@ let compteur = 0
 
 function draw(){
 
-    // randomSeed(params.randomSeed) // crée un bug ?
+    // randomSeed(params.randomSeed)
 
     if(imgV){
         image(imgV, 0, 0, width, height);
@@ -94,7 +94,8 @@ function make_request_P(){
         imgP.hide()
 
         // ON COUCHE LE SOLEIL
-        zP[0] += 0.002 // 0 fait coucher le soleil ; 1 marron nuageux montagneux sombre
+        // zP[0] += 0.002 // 0 fait coucher le soleil ; 1 marron nuageux montagneux sombre
+        zP[0] += 0.125 // version MAX
 
         // ON FAIT FLUCTUER LES PAYSAGES
         /*
@@ -119,15 +120,23 @@ function make_request_P(){
         */
 
         // METHODE 2
-        if(compteur > 0){
-            zP[compteur-1]-=5
+        
+        if(compteur == 1){
+            zP[compteur-1]-=4
         }
-        zP[compteur]+=5
+
+        if(compteur > 1){
+            zP[compteur-1]-=4
+            zP[compteur-2]-=4
+        }
+        zP[compteur]+=4
+        zP[compteur+1]+=4
+        
 
         //@ts-ignore
         p5.prototype.downloadFile(image, 'p'.concat(frameNbP.toString()), "png")
         frameNbP++
-        compteur++
+        compteur+=2
 
         if(frameNbP < NB_FRAMES_TO_EXPORT){ // Tant que la vidéo n'est pas finie, on appelle la requête des visages
           make_request_V()
@@ -140,6 +149,7 @@ function make_request_V(){
     const inputsV = {
         "z": zV,
         "truncation": 0.8,
+        // Lucas dit : 1
     };
     mdlV.query(inputsV).then(outputs => {
         const { image } = outputs
@@ -161,15 +171,25 @@ function make_request_V(){
         zV[1] = map(luminositeMoyP, 80, 190, 0, 10) // mapper la joie du perso depuis luminositeMoyP vers un intervalle raisonnable
         zV[31] = map(1/luminositeMoyP, 1/190, 1/80, 0, 10) // mapper la tristesse/ombre du perso
 
+        // JOIE vLUCAS
+        //zV[1] = map(luminositeMoyP, 128, 255, 0, 10)
+        //zV[31] = map(luminositeMoyP, 0, 128, 0, 10)
+
+
         // VIEILLESSE
-        //zV[141]+=0.001*6; // Au fil de la vidéo, le visage vieillit légèrement
+        zV[141]+=0.02*3; // Au fil de la vidéo, le visage vieillit légèrement
         //zV[85]+=0.001*6
-        // 0.002 pr 240 frames
+        // 0.02 pr 240 frames
+
+        //zV[141]+=1/20 // vLucas
 
         // TESTS
         //zV[1]-=1
 
         //luminositeMoyP = 0 // crée un bug ?
+
+        console.log(frameNbV + 1, zV[1], zV[31], zV[141]) // Affichage joie, tristesse, vieillesse
+
         imgV.hide()
         //@ts-ignore
         p5.prototype.downloadFile(image, frameNbV.toString(), "png")

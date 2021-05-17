@@ -5,16 +5,16 @@ var params = {
 };
 gui.add(params, "randomSeed", 1, 100, 1);
 gui.add(params, "Download_Image");
-var NB_FRAMES_TO_EXPORT = 20;
+var NB_FRAMES_TO_EXPORT = 240 / 3;
 var luminositeMoyP = 0;
 var mdlV = new rw.HostedModel({
-    url: "https://stylegan2-41afb750.hosted-models.runwayml.cloud/v1/",
+    url: "https://stylegan2-4c8e16cc.hosted-models.runwayml.cloud/v1/",
 });
 var imgV;
 var zV = [];
 var frameNbV = 0;
 var mdlP = new rw.HostedModel({
-    url: "https://landscapes-c8c0cdf9.hosted-models.runwayml.cloud/v1/",
+    url: "https://landscapes-b3d4b050.hosted-models.runwayml.cloud/v1/",
 });
 var imgP;
 var zP = [];
@@ -53,14 +53,19 @@ function make_request_P() {
             }
         }
         imgP.hide();
-        zP[0] += 0.002;
-        if (compteur > 0) {
-            zP[compteur - 1] -= 5;
+        zP[0] += 0.125;
+        if (compteur == 1) {
+            zP[compteur - 1] -= 4;
         }
-        zP[compteur] += 5;
+        if (compteur > 1) {
+            zP[compteur - 1] -= 4;
+            zP[compteur - 2] -= 4;
+        }
+        zP[compteur] += 4;
+        zP[compteur + 1] += 4;
         p5.prototype.downloadFile(image, 'p'.concat(frameNbP.toString()), "png");
         frameNbP++;
-        compteur++;
+        compteur += 2;
         if (frameNbP < NB_FRAMES_TO_EXPORT) {
             make_request_V();
         }
@@ -78,6 +83,8 @@ function make_request_V() {
         console.log(luminositeMoyP);
         zV[1] = map(luminositeMoyP, 80, 190, 0, 10);
         zV[31] = map(1 / luminositeMoyP, 1 / 190, 1 / 80, 0, 10);
+        zV[141] += 0.02 * 3;
+        console.log(frameNbV + 1, zV[1], zV[31], zV[141]);
         imgV.hide();
         p5.prototype.downloadFile(image, frameNbV.toString(), "png");
         frameNbV++;
